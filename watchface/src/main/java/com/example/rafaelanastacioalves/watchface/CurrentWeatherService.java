@@ -37,6 +37,13 @@ public class CurrentWeatherService extends WearableListenerService implements Da
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mGoogleApiClient.disconnect();
     }
 
     @Override
