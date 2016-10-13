@@ -107,8 +107,10 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
 
     public SunshineSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
+        Log.i(LOG_TAG, "Constructor called");
 
         //initializing GoogleApiClient
+        Log.i(LOG_TAG, "Initializing GoogleAPIClient");
 
         mGoogleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(Wearable.API)
@@ -415,7 +417,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
     }
 
     private void notifyWearable() {
-
+        Log.i(LOG_TAG, "notifyWearable");
         Asset asset = createAssetFromBitmap(largeIcon);
         PutDataRequest request = PutDataRequest.create("/image");
         request.putAsset("profileImage", asset);
@@ -442,6 +444,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
     }
 
     private void notifyWeather() {
+        Log.i(LOG_TAG, "notifyWeather");
         Context context = getContext();
         //checking the last update and notify if it' the first of the day
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
