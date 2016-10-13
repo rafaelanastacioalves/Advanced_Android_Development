@@ -124,6 +124,11 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.d(LOG_TAG, "Starting sync");
 
+        //Connecting to google API Client
+
+        mGoogleApiClient.connect();
+
+
         // We no longer need just the location String, but also potentially the latitude and
         // longitude, in case we are syncing based on a new Place Picker API result.
         Context context = getContext();
@@ -399,6 +404,10 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
                 updateMuzei();
                 notifyWeather();
                 notifyWearable();
+
+                // disconnecting from Google API as we don' need it anymore
+                mGoogleApiClient.disconnect();
+
             }
             Log.d(LOG_TAG, "Sync Complete. " + cVVector.size() + " Inserted");
             setLocationStatus(getContext(), LOCATION_STATUS_OK);
