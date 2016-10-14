@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -32,6 +33,8 @@ public class CurrentWeatherService extends WearableListenerService implements Da
 
     @Override
     public void onCreate() {
+        Log.i(LOG_TAG, "onCreate");
+        Toast.makeText(this,"onCreate + Connecting to GoogleApiClient", Toast.LENGTH_LONG).show();
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
                 .addConnectionCallbacks(this)
@@ -43,11 +46,17 @@ public class CurrentWeatherService extends WearableListenerService implements Da
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.i(LOG_TAG, "onDestroy");
+        Toast.makeText(this,"onDestroy + Disconnecting to GoogleApiClient", Toast.LENGTH_LONG).show();
+
         mGoogleApiClient.disconnect();
     }
 
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
+        Toast.makeText(this,"onDataChanged", Toast.LENGTH_LONG).show();
+
+        Log.i(LOG_TAG, "onDataChanged");
         for (DataEvent event : dataEvents) {
             if (event.getType() == DataEvent.TYPE_CHANGED &&
                     event.getDataItem().getUri().getPath().equals("/image")) {
