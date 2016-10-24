@@ -3,6 +3,7 @@ package com.example.android.sunshine.app.sync;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
@@ -24,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -38,7 +40,10 @@ import com.example.android.sunshine.app.Utility;
 import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.muzei.WeatherMuzeiSource;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.Asset;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
@@ -56,15 +61,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Vector;
-import java.util.concurrent.ExecutionException;
 
 public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements GoogleApiClient.ConnectionCallbacks {
-    public final String LOG_TAG = SunshineSyncAdapter.class.getSimpleName();
+    public static final String LOG_TAG = SunshineSyncAdapter.class.getSimpleName();
     public static final String ACTION_DATA_UPDATED =
             "com.example.android.sunshine.app.ACTION_DATA_UPDATED";
     // Interval at which to sync with the weather, in seconds.
     // 60 seconds (1 minute) * 180 = 3 hours
-    public static final int SYNC_INTERVAL = 60 * 180;
+    public static final int SYNC_INTERVAL = 30;
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
     private static final long DAY_IN_MILLIS = 1000 * 60 * 60 * 24;
     private static final int WEATHER_NOTIFICATION_ID = 3004;
@@ -88,6 +92,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(LOG_TAG, "onConnected (To Wear) " );
+        Log.i(LOG_TAG, "Bundle: " + bundle );
+        // disconnecting from Google API as we don' need it anymore
     }
 
     @Override
@@ -400,13 +406,22 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
                         WeatherContract.WeatherEntry.COLUMN_DATE + " <= ?",
                         new String[] {Long.toString(dayTime.setJulianDay(julianStartDay-1))});
 
+
+
                 updateWidgets();
                 updateMuzei();
                 notifyWeather();
-                notifyWearable();
 
-                // disconnecting from Google API as we don' need it anymore
-                mGoogleApiClient.disconnect();
+                //connecting to google API for connection with wearable
+                if(!mGoogleApiClient.isConnected()){
+                    Log.d(LOG_TAG,"mGoogleApiClient not connected yet... connecting");
+                    mGoogleApiClient.connect();
+                }else{
+                    Log.d(LOG_TAG,"mGoogleApiClient already connected... updating wearable");
+                    notifyWearable();
+
+                }
+
 
             }
             Log.d(LOG_TAG, "Sync Complete. " + cVVector.size() + " Inserted");
@@ -419,18 +434,47 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
     private static Asset createAssetFromBitmap(Bitmap bitmap) {
         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
+        Log.i(LOG_TAG, "creatingAssetFromBitmap: total of" + String.valueOf(bitmap.getByteCount()));
         return Asset.createFromBytes(byteStream.toByteArray());
     }
 
     private void notifyWearable() {
         Log.i(LOG_TAG, "notifyWearable");
-        Asset asset = createAssetFromBitmap(largeIcon);
-        PutDataRequest request = PutDataRequest.create("/image");
-        request.putAsset("profileImage", asset);
-        Wearable.DataApi.putDataItem(mGoogleApiClient, request);
+        if (null != largeIcon){
+            Log.i(LOG_TAG, "largeIcon is setted... procceding");
+
+            Asset asset = createAssetFromBitmap(largeIcon);
+            PutDataMapRequest dataMapRequest = PutDataMapRequest.create("/image");
+            dataMapRequest.getDataMap().putAsset("profileImage", asset);
+            dataMapRequest.getDataMap().putLong("timeStamp", System.currentTimeMillis());
+
+            dataMapRequest.setUrgent();
+            PutDataRequest request = dataMapRequest.asPutDataRequest();
+            if(mGoogleApiClient.isConnected()){
+                Log.i(LOG_TAG, "google api client connected... putting asset...");
+
+                Wearable.DataApi.putDataItem(mGoogleApiClient, request).setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+                    @Override
+                    public void onResult(@NonNull DataApi.DataItemResult dataItemResult) {
+                        if (dataItemResult.getStatus().isSuccess()) {
+                            Log.i(LOG_TAG,"Imagem enviada com sucesso! ");
+                        }else {
+                            Log.e (LOG_TAG,"Imagem enviada com erro!:  " + dataItemResult.getStatus().getStatusMessage());
+
+                        }
+                    }
+                });
+            }
+            Log.i(LOG_TAG, "google api client NOT connected... didn'put asset...");
+
+
+        }
+        Log.i(LOG_TAG, "largeIcon is not setted... precceding");
+
 
     }
 
@@ -460,13 +504,13 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
         String displayNotificationsKey = context.getString(R.string.pref_enable_notifications_key);
         boolean displayNotifications = prefs.getBoolean(displayNotificationsKey,
                 Boolean.parseBoolean(context.getString(R.string.pref_enable_notifications_default)));
-
+        Log.i(LOG_TAG, "Is supposed to display notifications: " + displayNotifications);
         if ( displayNotifications ) {
 
             String lastNotificationKey = context.getString(R.string.pref_last_notification);
             long lastSync = prefs.getLong(lastNotificationKey, 0);
 
-            if (System.currentTimeMillis() - lastSync >= DAY_IN_MILLIS) {
+            if (true) {
                 // Last sync was more than 1 day ago, let's send a notification with the weather.
                 String locationQuery = Utility.getPreferredLocation(context);
 
@@ -505,9 +549,12 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
                                 .error(artResourceId)
                                 .fitCenter()
                                 .into(largeIconWidth, largeIconHeight).get();
-                    } catch (InterruptedException | ExecutionException e) {
+                        Log.e(LOG_TAG, "Large Icon setted!");
+
+                    } catch (Exception e) {
                         Log.e(LOG_TAG, "Error retrieving large icon from " + artUrl, e);
                         largeIcon = BitmapFactory.decodeResource(resources, artResourceId);
+                        Log.e(LOG_TAG, "Large Icon setted!");
                     }
                     String title = context.getString(R.string.app_name);
 

@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 24
@@ -38,4 +37,8 @@ dependencies {
     compile 'com.google.android.support:wearable:2.0.0-alpha3'
     compile 'com.google.android.gms:play-services-wearable:9.6.1'
     compile 'com.google.android.gms:play-services-places:9.6.1'
+    wearApp project(':watchface')
+
 }
+
+apply plugin: 'com.google.gms.google-services'

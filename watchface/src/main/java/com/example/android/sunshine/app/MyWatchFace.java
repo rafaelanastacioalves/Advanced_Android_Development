@@ -21,6 +21,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -29,6 +31,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
@@ -36,9 +39,12 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
@@ -47,6 +53,7 @@ import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
 
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -74,6 +81,9 @@ public class MyWatchFace extends CanvasWatchFaceService {
      * a second to blink the colons.
      */
     private static final long NORMAL_UPDATE_RATE_MS = 500;
+
+    private static final long TIMEOUT_MS = 1000 * 10;
+
 
     /**
      * Update rate in milliseconds for mute mode. We update every minute, like in ambient mode.
@@ -121,7 +131,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
             }
         };
 
-        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(MyWatchFace.this)
+        public GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(MyWatchFace.this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(Wearable.API)
@@ -239,6 +249,9 @@ public class MyWatchFace extends CanvasWatchFaceService {
             super.onVisibilityChanged(visible);
 
             if (visible) {
+                Toast.makeText(getApplicationContext(),"onCreate + Connecting to GoogleApiClient", Toast.LENGTH_LONG).show();
+                Log.d(TAG, "MyWatchFace connecting to Google API");
+
                 mGoogleApiClient.connect();
 
                 registerReceiver();
@@ -251,6 +264,9 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
                 if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
                     Wearable.DataApi.removeListener(mGoogleApiClient, this);
+                    Toast.makeText(getApplicationContext(),"onDestroy + Disconnecting to GoogleApiClient", Toast.LENGTH_LONG).show();
+
+                    Log.d(TAG, "MyWatchFace disconnecting to Google API");
                     mGoogleApiClient.disconnect();
                 }
             }
@@ -572,9 +588,21 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
         @Override // DataApi.DataListener
         public void onDataChanged(DataEventBuffer dataEvents) {
+            Toast.makeText(getApplicationContext(),"onDataChanged", Toast.LENGTH_LONG).show();
+
+            Log.i(TAG, "onDataChanged");
+
+
             for (DataEvent dataEvent : dataEvents) {
                 if (dataEvent.getType() != DataEvent.TYPE_CHANGED) {
                     continue;
+                }
+                if (dataEvent.getType() == DataEvent.TYPE_CHANGED &&
+                        dataEvent.getDataItem().getUri().getPath().equals("/image")) {
+                    DataMapItem dataMapItem = DataMapItem.fromDataItem(dataEvent.getDataItem());
+                    Asset profileAsset = dataMapItem.getDataMap().getAsset("profileImage");
+                    loadBitmapFromAsset(profileAsset);
+
                 }
 
                 DataItem dataItem = dataEvent.getDataItem();
@@ -591,6 +619,35 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 updateUiForConfigDataMap(config);
             }
         }
+
+        protected void loadBitmapFromAsset(Asset asset) {
+            if (asset == null) {
+                throw new IllegalArgumentException("Asset must be non-null");
+            }
+
+            // convert asset into a file descriptor and block until it's ready
+            Wearable.DataApi.getFdForAsset(
+                    mGoogleApiClient, asset).setResultCallback(new ResultCallback<DataApi.GetFdForAssetResult>() {
+                @Override
+                public void onResult(@NonNull DataApi.GetFdForAssetResult getFdForAssetResult) {
+                    InputStream assetInputStream = getFdForAssetResult.getInputStream();
+                    mGoogleApiClient.disconnect();
+
+                    if (assetInputStream == null) {
+                        Log.w(TAG, "Requested an unknown Asset.");
+                    }
+                    // decode the stream into a bitmap
+                    Bitmap bitmap =  BitmapFactory.decodeStream(assetInputStream);
+                    Log.d(TAG, "bitmapLoaded!");
+                    // Do something with the bitmap
+                }
+            }) ;
+
+        }
+
+
+
+
 
         private void updateUiForConfigDataMap(final DataMap config) {
             boolean uiUpdated = false;
@@ -636,18 +693,16 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
         @Override  // GoogleApiClient.ConnectionCallbacks
         public void onConnected(Bundle connectionHint) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onConnected: " + connectionHint);
-            }
+                Log.d(TAG, "MyWatchFace onConnected: " + connectionHint);
+
             Wearable.DataApi.addListener(mGoogleApiClient, Engine.this);
             updateConfigDataItemAndUiOnStartup();
         }
 
         @Override  // GoogleApiClient.ConnectionCallbacks
         public void onConnectionSuspended(int cause) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onConnectionSuspended: " + cause);
-            }
+
         }
 
         @Override  // GoogleApiClient.OnConnectionFailedListener
@@ -657,4 +712,19 @@ public class MyWatchFace extends CanvasWatchFaceService {
             }
         }
     }
+//    private class DownloadFilesTask extends AsyncTask<Asset, Integer, Bitmap> {
+//        protected Bitmap doInBackground(Asset... assets) {
+//            Asset asset = assets[0];
+//            Bitmap bitmap = loadBitmapFromAsset(asset);
+//            return bitmap;
+//        }
+//
+//
+//        protected void onPostExecute(Bitmap result) {
+//            Log.d(TAG,"Downloaded " + result.getByteCount() + " bytes");
+//        }
+//
+//
+//    }
+
 }
