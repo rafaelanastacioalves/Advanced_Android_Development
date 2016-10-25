@@ -190,6 +190,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
          * disable anti-aliasing in ambient mode.
          */
         boolean mLowBitAmbient;
+        private Bitmap mBackgroundBitmap;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -322,7 +323,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
             mDatePaint.setTextSize(resources.getDimension(R.dimen.digital_date_text_size));
             mHourPaint.setTextSize(textSize);
-            mMinutePaint.setTextSize(textSize);
+           mMinutePaint.setTextSize(textSize);
             mSecondPaint.setTextSize(textSize);
             mAmPmPaint.setTextSize(amPmSize);
             mColonPaint.setTextSize(textSize);
@@ -472,8 +473,17 @@ public class MyWatchFace extends CanvasWatchFaceService {
             // updates.
             mShouldDrawColons = (System.currentTimeMillis() % 1000) < 500;
 
-            // Draw the background.
+
             canvas.drawRect(0, 0, bounds.width(), bounds.height(), mBackgroundPaint);
+
+            // Draw the background.
+            Log.i(TAG, "Drawing background");
+            if (!isInAmbientMode() && mBackgroundBitmap!= null){
+                Log.i(TAG, "Putting our sunshine background");
+
+                canvas.drawBitmap(mBackgroundBitmap, 0, 0, mBackgroundPaint);
+
+            }
 
             // Draw the hours.
             float x = mXOffset;
@@ -637,7 +647,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                         Log.w(TAG, "Requested an unknown Asset.");
                     }
                     // decode the stream into a bitmap
-                    Bitmap bitmap =  BitmapFactory.decodeStream(assetInputStream);
+                    mBackgroundBitmap = BitmapFactory.decodeStream(assetInputStream);
                     Log.d(TAG, "bitmapLoaded!");
                     // Do something with the bitmap
                 }
