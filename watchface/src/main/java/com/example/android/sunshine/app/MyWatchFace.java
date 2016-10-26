@@ -280,7 +280,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
         private void initFormats() {
             mDayOfWeekFormat = new SimpleDateFormat("EEE", Locale.getDefault());
             mDayOfWeekFormat.setCalendar(mCalendar);
-            mDateFormat = new SimpleDateFormat("MMM dd yyyy", Locale.getDefault());
+            mDateFormat = new SimpleDateFormat("EEE, MMM dd yyyy", Locale.getDefault());
             mDateFormat.setCalendar(mCalendar);
         }
 
@@ -539,14 +539,14 @@ public class MyWatchFace extends CanvasWatchFaceService {
             // Only render the day of week and date if there is no peek card, so they do not bleed
             // into each other in ambient mode.
             if (getPeekCardPosition().isEmpty()) {
-                // Day of week
-                canvas.drawText(
-                        mDayOfWeekFormat.format(mDate),
-                        mXOffset, mYOffset + mLineHeight, mDatePaint);
-                // Date
+                // All date
                 canvas.drawText(
                         mDateFormat.format(mDate).toUpperCase(),
-                        mXOffset, mYOffset + mLineHeight * 2, mDatePaint);
+                        mXOffset, mYOffset + mLineHeight, mDatePaint);
+                // Date
+//                canvas.drawText(
+//                        mDateFormat.format(mDate).toUpperCase(),
+//                        mXOffset, mYOffset + mLineHeight * 2, mDatePaint);
             }
         }
 
