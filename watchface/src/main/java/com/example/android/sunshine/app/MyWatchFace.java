@@ -280,7 +280,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
         private void initFormats() {
             mDayOfWeekFormat = new SimpleDateFormat("EEE", Locale.getDefault());
             mDayOfWeekFormat.setCalendar(mCalendar);
-            mDateFormat = DateFormat.getDateFormat(MyWatchFace.this);
+            mDateFormat = new SimpleDateFormat("MMM dd yyyy", Locale.getDefault());
             mDateFormat.setCalendar(mCalendar);
         }
 
@@ -545,7 +545,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                         mXOffset, mYOffset + mLineHeight, mDatePaint);
                 // Date
                 canvas.drawText(
-                        mDateFormat.format(mDate),
+                        mDateFormat.format(mDate).toUpperCase(),
                         mXOffset, mYOffset + mLineHeight * 2, mDatePaint);
             }
         }
