@@ -323,7 +323,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
             mDatePaint.setTextSize(resources.getDimension(R.dimen.digital_date_text_size));
             mHourPaint.setTextSize(textSize);
-           mMinutePaint.setTextSize(textSize);
+            mMinutePaint.setTextSize(textSize);
             mSecondPaint.setTextSize(textSize);
             mAmPmPaint.setTextSize(amPmSize);
             mColonPaint.setTextSize(textSize);
@@ -485,12 +485,12 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
             }
 
-            // Draw the hours.
-            float x = mXOffset;
+
+
             String hourString;
             // it is always 24hrs now
 //            if (is24Hour) {
-                hourString = formatTwoDigitNumber(mCalendar.get(Calendar.HOUR_OF_DAY));
+            hourString = formatTwoDigitNumber(mCalendar.get(Calendar.HOUR_OF_DAY));
 //            }
             // is always 24hrs
 // else {
@@ -500,6 +500,19 @@ public class MyWatchFace extends CanvasWatchFaceService {
 //                }
 //                hourString = String.valueOf(hour);
 //            }
+            String minuteString = formatTwoDigitNumber(mCalendar.get(Calendar.MINUTE));
+
+
+            float totalDateSize = mHourPaint.measureText(hourString) +
+                    mColonPaint.measureText(COLON_STRING) +
+                    mMinutePaint.measureText(minuteString);
+
+            float x = (bounds.width() - totalDateSize )/2;
+
+            float translation = x - mXOffset;
+
+
+
             canvas.drawText(hourString, x, mYOffset, mHourPaint);
             x += mHourPaint.measureText(hourString);
 
@@ -511,9 +524,11 @@ public class MyWatchFace extends CanvasWatchFaceService {
             x += mColonWidth;
 
             // Draw the minutes.
-            String minuteString = formatTwoDigitNumber(mCalendar.get(Calendar.MINUTE));
             canvas.drawText(minuteString, x, mYOffset, mMinutePaint);
             x += mMinutePaint.measureText(minuteString);
+
+            //t
+
 
             // In unmuted interactive mode, draw a second blinking colon followed by the seconds.
             // Otherwise, if we're in 12-hour mode, draw AM/PM
