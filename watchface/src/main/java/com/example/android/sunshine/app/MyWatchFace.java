@@ -491,15 +491,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
             // it is always 24hrs now
 //            if (is24Hour) {
             hourString = formatTwoDigitNumber(mCalendar.get(Calendar.HOUR_OF_DAY));
-//            }
-            // is always 24hrs
-// else {
-//                int hour = mCalendar.get(Calendar.HOUR);
-//                if (hour == 0) {
-//                    hour = 12;
-//                }
-//                hourString = String.valueOf(hour);
-//            }
+
             String minuteString = formatTwoDigitNumber(mCalendar.get(Calendar.MINUTE));
 
 
@@ -527,29 +519,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
             canvas.drawText(minuteString, x, mYOffset, mMinutePaint);
             x += mMinutePaint.measureText(minuteString);
 
-            //t
 
-
-            // In unmuted interactive mode, draw a second blinking colon followed by the seconds.
-            // Otherwise, if we're in 12-hour mode, draw AM/PM
-
-            //never show seconds
-
-//            if (!isInAmbientMode() && !mMute) {
-//                if (mShouldDrawColons) {
-//                    canvas.drawText(COLON_STRING, x, mYOffset, mColonPaint);
-//                }
-//                x += mColonWidth;
-//                canvas.drawText(formatTwoDigitNumber(
-//                        mCalendar.get(Calendar.SECOND)), x, mYOffset, mSecondPaint);
-////            }
-//
-//          // is always 24hrs...
-// else if (!is24Hour) {
-//                x += mColonWidth;
-//                canvas.drawText(getAmPmString(
-//                        mCalendar.get(Calendar.AM_PM)), x, mYOffset, mAmPmPaint);
-//            }
 
             // Only render the day of week and date if there is no peek card, so they do not bleed
             // into each other in ambient mode.
@@ -558,10 +528,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 canvas.drawText(
                         mDateFormat.format(mDate).toUpperCase(),
                         mXOffset, mYOffset + mLineHeight, mDatePaint);
-                // Date
-//                canvas.drawText(
-//                        mDateFormat.format(mDate).toUpperCase(),
-//                        mXOffset, mYOffset + mLineHeight * 2, mDatePaint);
+
             }
         }
 
