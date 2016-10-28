@@ -515,11 +515,16 @@ public class MyWatchFace extends CanvasWatchFaceService {
             }
             x += mColonWidth;
 
+
+
             // Draw the minutes.
             canvas.drawText(minuteString, x, mYOffset, mMinutePaint);
             x += mMinutePaint.measureText(minuteString);
 
 
+            totalDateSize = mDatePaint.measureText(mDateFormat.format(mDate).toUpperCase());
+
+            x = (bounds.width() - totalDateSize )/2;
 
             // Only render the day of week and date if there is no peek card, so they do not bleed
             // into each other in ambient mode.
@@ -527,7 +532,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 // All date
                 canvas.drawText(
                         mDateFormat.format(mDate).toUpperCase(),
-                        mXOffset, mYOffset + mLineHeight, mDatePaint);
+                        x, mYOffset + mLineHeight, mDatePaint);
 
             }
         }
