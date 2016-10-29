@@ -162,6 +162,9 @@ public class MyWatchFace extends CanvasWatchFaceService {
         Paint mSecondPaint;
         Paint mAmPmPaint;
         Paint mColonPaint;
+
+        Paint mMaxTempPaint;
+        Paint mMinTempPaint;
         float mColonWidth;
         boolean mMute;
 
@@ -184,13 +187,17 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 DigitalWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_MINUTE_DIGITS;
         int mInteractiveSecondDigitsColor =
                 DigitalWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_SECOND_DIGITS;
+        int mInteractiveHighTempDigitsColor =
+                DigitalWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HIGHTEMP_DIGITS;
 
         /**
          * Whether the display supports fewer bits for each color in ambient mode. When true, we
          * disable anti-aliasing in ambient mode.
          */
         boolean mLowBitAmbient;
-        private Bitmap mBackgroundBitmap;
+        private Bitmap mWeatherBitmap;
+        private String minTemp;
+        private String maxTemp;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -219,6 +226,8 @@ public class MyWatchFace extends CanvasWatchFaceService {
             mAmPmPaint = createTextPaint(resources.getColor(R.color.digital_am_pm));
             mColonPaint = createTextPaint(resources.getColor(R.color.digital_colons));
 
+            mMaxTempPaint = createTextPaint(mInteractiveHighTempDigitsColor, BOLD_TYPEFACE);
+
             mCalendar = Calendar.getInstance();
             mDate = new Date();
             initFormats();
@@ -226,6 +235,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onDestroy() {
+            Log.d(TAG, "onDestroy Engine...");
             mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME);
             super.onDestroy();
         }
@@ -252,8 +262,10 @@ public class MyWatchFace extends CanvasWatchFaceService {
             if (visible) {
                 Toast.makeText(getApplicationContext(),"onCreate + Connecting to GoogleApiClient", Toast.LENGTH_LONG).show();
                 Log.d(TAG, "MyWatchFace connecting to Google API");
+                if (!mGoogleApiClient.isConnected()){
+                    mGoogleApiClient.connect();
 
-                mGoogleApiClient.connect();
+                }
 
                 registerReceiver();
 
@@ -321,12 +333,17 @@ public class MyWatchFace extends CanvasWatchFaceService {
             float amPmSize = resources.getDimension(isRound
                     ? R.dimen.digital_am_pm_size_round : R.dimen.digital_am_pm_size);
 
+            float tempSize = resources.getDimension(isRound
+                    ? R.dimen.digital_temps_size_round : R.dimen.digital_temps_size );
+
             mDatePaint.setTextSize(resources.getDimension(R.dimen.digital_date_text_size));
             mHourPaint.setTextSize(textSize);
             mMinutePaint.setTextSize(textSize);
             mSecondPaint.setTextSize(textSize);
             mAmPmPaint.setTextSize(amPmSize);
             mColonPaint.setTextSize(textSize);
+
+            mMaxTempPaint.setTextSize(tempSize);
 
             mColonWidth = mColonPaint.measureText(COLON_STRING);
         }
@@ -379,6 +396,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 mMinutePaint.setAntiAlias(antiAlias);
                 mSecondPaint.setAntiAlias(antiAlias);
                 mAmPmPaint.setAntiAlias(antiAlias);
+                mMaxTempPaint.setAntiAlias(antiAlias);
                 mColonPaint.setAntiAlias(antiAlias);
             }
             invalidate();
@@ -412,6 +430,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 mMinutePaint.setAlpha(alpha);
                 mColonPaint.setAlpha(alpha);
                 mAmPmPaint.setAlpha(alpha);
+                mMaxTempPaint.setAlpha(alpha);
                 invalidate();
             }
         }
@@ -442,6 +461,11 @@ public class MyWatchFace extends CanvasWatchFaceService {
         private void setInteractiveHourDigitsColor(int color) {
             mInteractiveHourDigitsColor = color;
             updatePaintIfInteractive(mHourPaint, color);
+        }
+
+        private void setInteractiveHighTempDigitsColor(int color) {
+            mInteractiveHighTempDigitsColor = color;
+            updatePaintIfInteractive(mMaxTempPaint, color);
         }
 
         private void setInteractiveMinuteDigitsColor(int color) {
@@ -476,14 +500,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
             canvas.drawRect(0, 0, bounds.width(), bounds.height(), mBackgroundPaint);
 
-            // Draw the background.
-            Log.i(TAG, "Drawing background");
-            if (!isInAmbientMode() && mBackgroundBitmap!= null){
-                Log.i(TAG, "Putting our sunshine background");
 
-                canvas.drawBitmap(mBackgroundBitmap, 0, 0, mBackgroundPaint);
-
-            }
 
 
 
@@ -535,6 +552,30 @@ public class MyWatchFace extends CanvasWatchFaceService {
                         x, mYOffset + mLineHeight, mDatePaint);
 
             }
+
+            // Draw the weather image.
+            if (!isInAmbientMode() && mWeatherBitmap != null){
+                Log.i(TAG, "Putting our sunshine background");
+
+                canvas.drawBitmap(mWeatherBitmap, mXOffset,mYOffset + 2*mLineHeight , mBackgroundPaint  );
+                x = mWeatherBitmap.getWidth();
+
+            }else{
+                x=0;
+            }
+
+            // Draw the weather temps.
+            if (!isInAmbientMode() && maxTemp != null && minTemp != null){
+                Log.i(TAG, "Putting our sunshine temps");
+
+                canvas.drawText(maxTemp, mXOffset + x,mYOffset + 3*mLineHeight , mMaxTempPaint);
+
+            }
+
+
+
+
+
         }
 
         /**
@@ -607,6 +648,9 @@ public class MyWatchFace extends CanvasWatchFaceService {
                         dataEvent.getDataItem().getUri().getPath().equals("/image")) {
                     DataMapItem dataMapItem = DataMapItem.fromDataItem(dataEvent.getDataItem());
                     Asset profileAsset = dataMapItem.getDataMap().getAsset("profileImage");
+                    minTemp = dataMapItem.getDataMap().getString("lowTemp");
+                    maxTemp = dataMapItem.getDataMap().getString("highTemp");
+
                     loadBitmapFromAsset(profileAsset);
 
                 }
@@ -637,13 +681,12 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 @Override
                 public void onResult(@NonNull DataApi.GetFdForAssetResult getFdForAssetResult) {
                     InputStream assetInputStream = getFdForAssetResult.getInputStream();
-                    mGoogleApiClient.disconnect();
 
                     if (assetInputStream == null) {
                         Log.w(TAG, "Requested an unknown Asset.");
                     }
                     // decode the stream into a bitmap
-                    mBackgroundBitmap = BitmapFactory.decodeStream(assetInputStream);
+                    mWeatherBitmap = BitmapFactory.decodeStream(assetInputStream);
                     Log.d(TAG, "bitmapLoaded!");
                     // Do something with the bitmap
                 }
@@ -690,7 +733,10 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 setInteractiveMinuteDigitsColor(color);
             } else if (configKey.equals(DigitalWatchFaceUtil.KEY_SECONDS_COLOR)) {
                 setInteractiveSecondDigitsColor(color);
-            } else {
+            } else if (configKey.equals(DigitalWatchFaceUtil.KEY_HIGHTEMP_COLOR)) {
+                setInteractiveSecondDigitsColor(color);
+            }
+            else {
                 Log.w(TAG, "Ignoring unknown config key: " + configKey);
                 return false;
             }

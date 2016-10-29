@@ -88,6 +88,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
     private static final int INDEX_SHORT_DESC = 3;
     private final GoogleApiClient mGoogleApiClient;
     private Bitmap largeIcon;
+    private String highTemp;
+    private String lowTemp;
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -131,8 +133,9 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
         Log.d(LOG_TAG, "Starting sync");
 
         //Connecting to google API Client
-
-        mGoogleApiClient.connect();
+        if(!mGoogleApiClient.isConnected()){
+            mGoogleApiClient.connect();
+        }
 
 
         // We no longer need just the location String, but also potentially the latitude and
@@ -444,13 +447,15 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
 
     private void notifyWearable() {
         Log.i(LOG_TAG, "notifyWearable");
-        if (null != largeIcon){
+        if ((null != largeIcon) && (null != highTemp) && (null != lowTemp)){
             Log.i(LOG_TAG, "largeIcon is setted... procceding");
+            Log.i(LOG_TAG, "High temp is setted... " + highTemp);
 
             Asset asset = createAssetFromBitmap(largeIcon);
             PutDataMapRequest dataMapRequest = PutDataMapRequest.create("/image");
             dataMapRequest.getDataMap().putAsset("profileImage", asset);
-            dataMapRequest.getDataMap().putLong("timeStamp", System.currentTimeMillis());
+            dataMapRequest.getDataMap().putString("highTemp", highTemp);
+            dataMapRequest.getDataMap().putString("lowTemp", lowTemp);
 
             dataMapRequest.setUrgent();
             PutDataRequest request = dataMapRequest.asPutDataRequest();
@@ -473,7 +478,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
 
 
         }
-        Log.i(LOG_TAG, "largeIcon is not setted... precceding");
+        Log.i(LOG_TAG, "largeIcon is not setted... ");
 
 
     }
@@ -521,8 +526,10 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
 
                 if (cursor.moveToFirst()) {
                     int weatherId = cursor.getInt(INDEX_WEATHER_ID);
-                    double high = cursor.getDouble(INDEX_MAX_TEMP);
-                    double low = cursor.getDouble(INDEX_MIN_TEMP);
+                    Double high;
+                    Double low;
+                    high = cursor.getDouble(INDEX_MAX_TEMP);
+                    low = cursor.getDouble(INDEX_MIN_TEMP);
                     String desc = cursor.getString(INDEX_SHORT_DESC);
 
                     int iconId = Utility.getIconResourceForWeatherCondition(weatherId);
@@ -557,12 +564,13 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
                         Log.e(LOG_TAG, "Large Icon setted!");
                     }
                     String title = context.getString(R.string.app_name);
-
+                    highTemp = Utility.formatTemperature(context, high);
+                    lowTemp = Utility.formatTemperature(context, low);
                     // Define the text of the forecast.
                     String contentText = String.format(context.getString(R.string.format_notification),
-                            desc,
-                            Utility.formatTemperature(context, high),
-                            Utility.formatTemperature(context, low));
+                            desc, highTemp,
+                            lowTemp)
+                            ;
 
                     // NotificationCompatBuilder is a very convenient way to build backward-compatible
                     // notifications.  Just throw in some data.

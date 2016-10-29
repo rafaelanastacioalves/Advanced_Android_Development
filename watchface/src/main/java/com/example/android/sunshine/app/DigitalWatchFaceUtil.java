@@ -58,6 +58,13 @@ public final class DigitalWatchFaceUtil {
     public static final String KEY_SECONDS_COLOR = "SECONDS_COLOR";
 
     /**
+     * The {@link DataMap} key for {@link MyWatchFace1} high temp digits color name.
+     * The color name must be a {@link String} recognized by {@link Color#parseColor}.
+     */
+    public static final String KEY_HIGHTEMP_COLOR = "HIGHTEMP_COLOR" ;
+
+
+    /**
      * The path for the {@link DataItem} containing {@link MyWatchFace1} configuration.
      */
     public static final String PATH_WITH_FEATURE = "/watch_face_config/Digital";
@@ -76,6 +83,13 @@ public final class DigitalWatchFaceUtil {
     public static final String COLOR_NAME_DEFAULT_AND_AMBIENT_HOUR_DIGITS = "White";
     public static final int COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS =
             parseColor(COLOR_NAME_DEFAULT_AND_AMBIENT_HOUR_DIGITS);
+    /**
+     * Name of the default interactive mode hour digits color and the ambient mode hour digits
+     * color.
+     */
+    public static final String COLOR_NAME_DEFAULT_AND_AMBIENT_HIGHTEMP_DIGITS = "White";
+    public static final int COLOR_VALUE_DEFAULT_AND_AMBIENT_HIGHTEMP_DIGITS =
+            parseColor(COLOR_NAME_DEFAULT_AND_AMBIENT_HIGHTEMP_DIGITS);
 
     /**
      * Name of the default interactive mode minute digits color and the ambient mode minute digits
