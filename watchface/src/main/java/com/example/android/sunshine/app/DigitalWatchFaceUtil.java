@@ -72,7 +72,7 @@ public final class DigitalWatchFaceUtil {
     /**
      * Name of the default interactive mode background color and the ambient mode background color.
      */
-    public static final String COLOR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND = "Black";
+    public static final String COLOR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND = "Blue";
     public static final int COLOR_VALUE_DEFAULT_AND_AMBIENT_BACKGROUND =
             parseColor(COLOR_NAME_DEFAULT_AND_AMBIENT_BACKGROUND);
 
