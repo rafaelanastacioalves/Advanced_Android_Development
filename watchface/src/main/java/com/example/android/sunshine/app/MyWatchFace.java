@@ -561,6 +561,12 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
             }
 
+            float D = 60;
+
+            float xSeparator = (bounds.width() - D)/2;
+
+            canvas.drawLine(xSeparator,mYOffset + 2*mLineHeight,xSeparator + D,mYOffset + 2*mLineHeight, mDatePaint);
+
             // Draw the weather image.
             if (!isInAmbientMode() && mWeatherBitmap != null){
                 Log.i(TAG, "Putting our sunshine background");
