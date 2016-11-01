@@ -227,6 +227,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
             mColonPaint = createTextPaint(resources.getColor(R.color.digital_colons));
 
             mMaxTempPaint = createTextPaint(mInteractiveHighTempDigitsColor, BOLD_TYPEFACE);
+            mMinTempPaint = createTextPaint(resources.getColor(R.color.min_temp));
 
             mCalendar = Calendar.getInstance();
             mDate = new Date();
@@ -344,6 +345,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
             mColonPaint.setTextSize(textSize);
 
             mMaxTempPaint.setTextSize(tempSize);
+            mMinTempPaint.setTextSize(tempSize);
 
             mColonWidth = mColonPaint.measureText(COLON_STRING);
         }
@@ -397,6 +399,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 mSecondPaint.setAntiAlias(antiAlias);
                 mAmPmPaint.setAntiAlias(antiAlias);
                 mMaxTempPaint.setAntiAlias(antiAlias);
+                mMinTempPaint.setAntiAlias(antiAlias);
                 mColonPaint.setAntiAlias(antiAlias);
             }
             invalidate();
@@ -431,6 +434,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 mColonPaint.setAlpha(alpha);
                 mAmPmPaint.setAlpha(alpha);
                 mMaxTempPaint.setAlpha(alpha);
+                mMinTempPaint.setAlpha(alpha);
                 invalidate();
             }
         }
@@ -466,6 +470,10 @@ public class MyWatchFace extends CanvasWatchFaceService {
         private void setInteractiveHighTempDigitsColor(int color) {
             mInteractiveHighTempDigitsColor = color;
             updatePaintIfInteractive(mMaxTempPaint, color);
+        }
+        private void setInteractiveLowTempDigitsColor(int color) {
+            mInteractiveHighTempDigitsColor = color;
+            updatePaintIfInteractive(mMinTempPaint, color);
         }
 
         private void setInteractiveMinuteDigitsColor(int color) {
@@ -557,6 +565,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
             if (!isInAmbientMode() && mWeatherBitmap != null){
                 Log.i(TAG, "Putting our sunshine background");
 
+
                 canvas.drawBitmap(mWeatherBitmap, mXOffset,mYOffset + 2*mLineHeight , mBackgroundPaint  );
                 x = mWeatherBitmap.getWidth();
 
@@ -569,6 +578,9 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 Log.i(TAG, "Putting our sunshine temps");
 
                 canvas.drawText(maxTemp, mXOffset + x,mYOffset + 3*mLineHeight , mMaxTempPaint);
+
+                x += mMaxTempPaint.measureText(maxTemp);
+                canvas.drawText(minTemp, mXOffset + x,mYOffset + 3*mLineHeight , mMinTempPaint);
 
             }
 
@@ -686,7 +698,8 @@ public class MyWatchFace extends CanvasWatchFaceService {
                         Log.w(TAG, "Requested an unknown Asset.");
                     }
                     // decode the stream into a bitmap
-                    mWeatherBitmap = BitmapFactory.decodeStream(assetInputStream);
+                    Bitmap mWeatherBitmapTemp = BitmapFactory.decodeStream(assetInputStream);
+                    mWeatherBitmap = Bitmap.createScaledBitmap(mWeatherBitmapTemp,90,90,false);
                     Log.d(TAG, "bitmapLoaded!");
                     // Do something with the bitmap
                 }
