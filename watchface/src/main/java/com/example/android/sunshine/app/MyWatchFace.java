@@ -177,6 +177,11 @@ public class MyWatchFace extends CanvasWatchFaceService {
         float mXOffset;
         float mYOffset;
         float mLineHeight;
+
+        float mBitMapSpacing;
+        float mTempSpacing;
+
+
         String mAmString;
         String mPmString;
         int mInteractiveBackgroundColor =
@@ -336,6 +341,9 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
             float tempSize = resources.getDimension(isRound
                     ? R.dimen.digital_temps_size_round : R.dimen.digital_temps_size );
+
+            mBitMapSpacing = resources.getDimension(R.dimen.bitmap_spacing);
+            mTempSpacing = resources.getDimension(R.dimen.temp_spacing);
 
             mDatePaint.setTextSize(resources.getDimension(R.dimen.digital_date_text_size));
             mHourPaint.setTextSize(textSize);
@@ -565,28 +573,36 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
             float xSeparator = (bounds.width() - D)/2;
 
-            canvas.drawLine(xSeparator,mYOffset + 2*mLineHeight,xSeparator + D,mYOffset + 2*mLineHeight, mDatePaint);
+            canvas.drawLine(xSeparator,mYOffset + (float)1.5*mLineHeight,xSeparator + D,mYOffset + (float)1.5*mLineHeight, mDatePaint);
 
             // Draw the weather image.
             if (!isInAmbientMode() && mWeatherBitmap != null){
                 Log.i(TAG, "Putting our sunshine background");
 
+                D = mWeatherBitmap.getWidth() + mBitMapSpacing + mTempSpacing
+                        + mMaxTempPaint.measureText(maxTemp) + 2*mTempSpacing
+                        + mMinTempPaint.measureText(minTemp);
+                x = (bounds.width() -D)/2;
 
-                canvas.drawBitmap(mWeatherBitmap, mXOffset,mYOffset + 2*mLineHeight , mBackgroundPaint  );
-                x = mWeatherBitmap.getWidth();
+                canvas.drawBitmap(mWeatherBitmap,x,mYOffset + 2*mLineHeight , mBackgroundPaint  );
+                x += mWeatherBitmap.getWidth() + mBitMapSpacing;
 
-            }else{
-                x=0;
+
+            }else if (!isInAmbientMode() && maxTemp != null && minTemp != null){
+                D = mMaxTempPaint.measureText(maxTemp) + 2*mTempSpacing
+                        + mMinTempPaint.measureText(minTemp);
+                x = (bounds.width() -D)/2;
             }
+
 
             // Draw the weather temps.
             if (!isInAmbientMode() && maxTemp != null && minTemp != null){
                 Log.i(TAG, "Putting our sunshine temps");
+                x += mTempSpacing;
+                canvas.drawText(maxTemp, x ,mYOffset + (float)3.3*mLineHeight , mMaxTempPaint);
 
-                canvas.drawText(maxTemp, mXOffset + x,mYOffset + 3*mLineHeight , mMaxTempPaint);
-
-                x += mMaxTempPaint.measureText(maxTemp);
-                canvas.drawText(minTemp, mXOffset + x,mYOffset + 3*mLineHeight , mMinTempPaint);
+                x += mMaxTempPaint.measureText(maxTemp) + 2*mTempSpacing;
+                canvas.drawText(minTemp, x ,mYOffset + (float)3.3*mLineHeight , mMinTempPaint);
 
             }
 
