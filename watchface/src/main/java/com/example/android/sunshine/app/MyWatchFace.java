@@ -184,8 +184,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
         String mAmString;
         String mPmString;
-        int mInteractiveBackgroundColor =
-                DigitalWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_BACKGROUND;
+        int mInteractiveBackgroundColor;
         int mInteractiveHourDigitsColor =
                 DigitalWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS;
         int mInteractiveMinuteDigitsColor =
@@ -221,7 +220,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
             mLineHeight = resources.getDimension(R.dimen.digital_line_height);
             mAmString = resources.getString(R.string.digital_am);
             mPmString = resources.getString(R.string.digital_pm);
-
+            mInteractiveBackgroundColor = resources.getColor(R.color.background_color);
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(mInteractiveBackgroundColor);
             mDatePaint = createTextPaint(resources.getColor(R.color.digital_date));
