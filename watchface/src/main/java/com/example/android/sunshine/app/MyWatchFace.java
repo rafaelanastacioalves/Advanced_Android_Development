@@ -72,9 +72,9 @@ public class MyWatchFace extends CanvasWatchFaceService {
     private static final String TAG = "MyWatchFace";
 
     private static final Typeface BOLD_TYPEFACE =
-            Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD);
+            Typeface.create(Typeface.DEFAULT_BOLD, Typeface.NORMAL);
     private static final Typeface NORMAL_TYPEFACE =
-            Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
+            Typeface.create("sans-serif-light", Typeface.NORMAL);
 
     /**
      * Update rate in milliseconds for normal (not ambient and not mute) mode. We update twice
