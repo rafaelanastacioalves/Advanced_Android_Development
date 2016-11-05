@@ -95,7 +95,6 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(LOG_TAG, "onConnected (To Wear) " );
         Log.i(LOG_TAG, "Bundle: " + bundle );
-        // disconnecting from Google API as we don' need it anymore
     }
 
     @Override
@@ -246,6 +245,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements 
         }
         return;
     }
+
 
     /**
      * Take the String representing the complete forecast in JSON Format and

@@ -2,7 +2,7 @@
 <resources>
 
     <color name="digital_date">#e2e2e2</color>
-    <color name="min_temp">#aaaaaa</color>
+    <color name="min_temp">#ffffff</color>
     <color name="digital_am_pm">#aaaaa0</color>
     <color name="digital_colons">#ffffff</color>
     <color name="config_activity_background">#ffffff</color>

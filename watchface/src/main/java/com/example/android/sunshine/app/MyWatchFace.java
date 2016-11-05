@@ -202,6 +202,8 @@ public class MyWatchFace extends CanvasWatchFaceService {
         private Bitmap mWeatherBitmap;
         private String minTemp;
         private String maxTemp;
+        private Resources resources;
+        private float mBitmapSize;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -215,11 +217,12 @@ public class MyWatchFace extends CanvasWatchFaceService {
                     .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
                     .setShowSystemUiTime(false)
                     .build());
-            Resources resources = MyWatchFace.this.getResources();
+            resources = MyWatchFace.this.getResources();
             mYOffset = resources.getDimension(R.dimen.digital_y_offset);
             mLineHeight = resources.getDimension(R.dimen.digital_line_height);
             mAmString = resources.getString(R.string.digital_am);
             mPmString = resources.getString(R.string.digital_pm);
+
             mInteractiveBackgroundColor = resources.getColor(R.color.background_color);
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(mInteractiveBackgroundColor);
@@ -241,6 +244,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
         @Override
         public void onDestroy() {
             Log.d(TAG, "onDestroy Engine...");
+            mGoogleApiClient.disconnect();
             mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME);
             super.onDestroy();
         }
@@ -267,10 +271,8 @@ public class MyWatchFace extends CanvasWatchFaceService {
             if (visible) {
                 Toast.makeText(getApplicationContext(),"onCreate + Connecting to GoogleApiClient", Toast.LENGTH_LONG).show();
                 Log.d(TAG, "MyWatchFace connecting to Google API");
-                if (!mGoogleApiClient.isConnected()){
-                    mGoogleApiClient.connect();
 
-                }
+                mGoogleApiClient.connect();
 
                 registerReceiver();
 
@@ -331,6 +333,8 @@ public class MyWatchFace extends CanvasWatchFaceService {
             // Load resources that have alternate values for round watches.
             Resources resources = MyWatchFace.this.getResources();
             boolean isRound = insets.isRound();
+            mBitmapSize = resources.getDimension( isRound ? R.dimen.bitmap_size_round : R.dimen.bitmap_size);
+
             mXOffset = resources.getDimension(isRound
                     ? R.dimen.digital_x_offset_round : R.dimen.digital_x_offset);
             float textSize = resources.getDimension(isRound
@@ -388,7 +392,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 Log.d(TAG, "onAmbientModeChanged: " + inAmbientMode);
             }
             adjustPaintColorToCurrentMode(mBackgroundPaint, mInteractiveBackgroundColor,
-                    DigitalWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_BACKGROUND);
+                    getColor(R.color.background_color));
             adjustPaintColorToCurrentMode(mHourPaint, mInteractiveHourDigitsColor,
                     DigitalWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS);
             adjustPaintColorToCurrentMode(mMinutePaint, mInteractiveMinuteDigitsColor,
@@ -575,36 +579,26 @@ public class MyWatchFace extends CanvasWatchFaceService {
             canvas.drawLine(xSeparator,mYOffset + (float)1.5*mLineHeight,xSeparator + D,mYOffset + (float)1.5*mLineHeight, mDatePaint);
 
             // Draw the weather image.
-            if (!isInAmbientMode() && mWeatherBitmap != null){
+            if (!isInAmbientMode() && mWeatherBitmap != null && maxTemp != null && minTemp != null) {
                 Log.i(TAG, "Putting our sunshine background");
 
                 D = mWeatherBitmap.getWidth() + mBitMapSpacing + mTempSpacing
-                        + mMaxTempPaint.measureText(maxTemp) + 2*mTempSpacing
+                        + mMaxTempPaint.measureText(maxTemp) + 2 * mTempSpacing
                         + mMinTempPaint.measureText(minTemp);
-                x = (bounds.width() -D)/2;
+                x = (bounds.width() - D) / 2;
 
-                canvas.drawBitmap(mWeatherBitmap,x,mYOffset + 2*mLineHeight , mBackgroundPaint  );
+                canvas.drawBitmap(mWeatherBitmap, x, mYOffset + 2 * mLineHeight, mBackgroundPaint);
                 x += mWeatherBitmap.getWidth() + mBitMapSpacing;
 
-
-            }else if (!isInAmbientMode() && maxTemp != null && minTemp != null){
-                D = mMaxTempPaint.measureText(maxTemp) + 2*mTempSpacing
-                        + mMinTempPaint.measureText(minTemp);
-                x = (bounds.width() -D)/2;
-            }
-
-
-            // Draw the weather temps.
-            if (!isInAmbientMode() && maxTemp != null && minTemp != null){
                 Log.i(TAG, "Putting our sunshine temps");
                 x += mTempSpacing;
-                canvas.drawText(maxTemp, x ,mYOffset + (float)3.3*mLineHeight , mMaxTempPaint);
+                canvas.drawText(maxTemp, x, mYOffset + (float) 3.3 * mLineHeight, mMaxTempPaint);
 
-                x += mMaxTempPaint.measureText(maxTemp) + 2*mTempSpacing;
-                canvas.drawText(minTemp, x ,mYOffset + (float)3.3*mLineHeight , mMinTempPaint);
+                x += mMaxTempPaint.measureText(maxTemp) + 2 * mTempSpacing;
+                canvas.drawText(minTemp, x, mYOffset + (float) 3.3 * mLineHeight, mMinTempPaint);
+
 
             }
-
 
 
 
@@ -650,8 +644,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
         }
 
         private void setDefaultValuesForMissingConfigKeys(DataMap config) {
-            addIntKeyIfMissing(config, DigitalWatchFaceUtil.KEY_BACKGROUND_COLOR,
-                    DigitalWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_BACKGROUND);
+            addIntKeyIfMissing(config, DigitalWatchFaceUtil.KEY_BACKGROUND_COLOR, resources.getColor(R.color.background_color));
             addIntKeyIfMissing(config, DigitalWatchFaceUtil.KEY_HOURS_COLOR,
                     DigitalWatchFaceUtil.COLOR_VALUE_DEFAULT_AND_AMBIENT_HOUR_DIGITS);
             addIntKeyIfMissing(config, DigitalWatchFaceUtil.KEY_MINUTES_COLOR,
@@ -720,7 +713,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                     }
                     // decode the stream into a bitmap
                     Bitmap mWeatherBitmapTemp = BitmapFactory.decodeStream(assetInputStream);
-                    mWeatherBitmap = Bitmap.createScaledBitmap(mWeatherBitmapTemp,90,90,false);
+                    mWeatherBitmap = Bitmap.createScaledBitmap(mWeatherBitmapTemp,(int) mBitmapSize, (int)mBitmapSize,false);
                     Log.d(TAG, "bitmapLoaded!");
                     // Do something with the bitmap
                 }
