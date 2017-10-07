@@ -8,9 +8,9 @@ Synchronizes weather information from OpenWeatherMap on Android Phones and Table
 This sample uses the Gradle build system.  To build this project, use the
 "gradlew build" command or use "Import Project" in Android Studio.
 
-### Setup (Android Wear) sugestion via IDE
+### Setup (Android Wear simulator) sugestion via IDE
 To see the watchface in Android Wear Emulator:
-1. Follow rigorously the instructions in [here](https://developer.android.com/training/wearables/apps/creating.html#SetupEmulator).
+1. Setup Android Wear simulator rigorously as told officialy in [here](https://developer.android.com/training/wearables/apps/creating.html#SetupEmulator).
 2. Configure your IDE like in [here](https://stackoverflow.com/questions/27970210/default-activity-not-found-for-a-wearable-app-created-with-android-studio-temp) - if you like to use it to run your apps.
 3. Install watchface via IDE;
 4. Enable the watchface Sunshine Prototype;
