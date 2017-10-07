@@ -12,9 +12,9 @@ This sample uses the Gradle build system.  To build this project, use the
 To see the watchface in Android Wear Emulator:
 1. Follow rigorously the instructions in [here](https://developer.android.com/training/wearables/apps/creating.html#SetupEmulator).
 2. Configure your IDE like in [here](https://stackoverflow.com/questions/27970210/default-activity-not-found-for-a-wearable-app-created-with-android-studio-temp) - if you like to use it to run your apps.
-3. Intall the app;
-4. Install watchface via IDE;
-5. Enable the watchface Sunshine Prototype;
+3. Install watchface via IDE;
+4. Enable the watchface Sunshine Prototype;
+5. Intall the app;
 
 
 Patches are encouraged, and may be submitted by forking this project and
