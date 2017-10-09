@@ -2,7 +2,7 @@
 
 Synchronizes weather information from OpenWeatherMap on Android Phones and Tablets. Used in the Udacity Advanced Android course.
 
-<img src="/photos/Screenshot_1507588408.png" width="200"> <img src="/photos/device-2017-10-09-193939.png" width="200">
+<img src="/photos/Screenshot_1507588408.png" width="200"> ... <img src="/photos/device-2017-10-09-193939.png" width="200">
 
 ## Getting Started
 
