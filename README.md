@@ -1,38 +1,28 @@
-Advanced Android Sample App
-===================================
+# Advanced Android Sample App
 
 Synchronizes weather information from OpenWeatherMap on Android Phones and Tablets. Used in the Udacity Advanced Android course.
 
-Pre-requisites
---------------
-Android SDK 21 or Higher
-Build Tools version 21.1.2
-Android Support AppCompat 22.2.0
-Android Support Annotations 22.2.0
-Android Support GridLayout 22.2.0
-Android Support CardView 22.2.0
-Android Support Design 22.2.0
-Android Support RecyclerView 22.2.0
-Google Play Services GCM 7.0.0
-BumpTech Glide 3.5.2
+<img src="/photos/Screenshot_1507588408.png" width="200"> ... <img src="/photos/device-2017-10-09-193939.png" width="200">
 
+## Getting Started
 
-Getting Started
----------------
 This sample uses the Gradle build system.  To build this project, use the
 "gradlew build" command or use "Import Project" in Android Studio.
 
-Support
--------
+### Setup (Android Wear simulator) sugestion via IDE
+To see the watchface in Android Wear Emulator:
+1. Setup Android Wear simulator rigorously as told officialy in [here](https://developer.android.com/training/wearables/apps/creating.html#SetupEmulator).
+2. Configure your IDE like in [here](https://stackoverflow.com/questions/27970210/default-activity-not-found-for-a-wearable-app-created-with-android-studio-temp) - if you like to use it to run your apps.
+3. Install watchface via IDE;
+4. Enable the watchface Sunshine Prototype;
+5. Intall the app;
 
-- Google+ Community: https://plus.google.com/communities/105153134372062985968
-- Stack Overflow: http://stackoverflow.com/questions/tagged/android
 
 Patches are encouraged, and may be submitted by forking this project and
 submitting a pull request through GitHub. Please see CONTRIBUTING.md for more details.
 
-License
--------
+## License
+
 Copyright 2015 The Android Open Source Project, Inc.
 
 Licensed to the Apache Software Foundation (ASF) under one or more contributor
