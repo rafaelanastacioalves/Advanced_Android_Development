@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:594249544400:android:83b792e26f07bf18",
         "android_client_info": {
-          "package_name": "com.example.android.sunshine.app"
+          "package_name": "com.rafaelalves.android.sunshine.app"
         }
       },
       "oauth_client": [

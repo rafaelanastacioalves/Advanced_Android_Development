@@ -2,11 +2,18 @@ apply plugin: 'com.android.application'
 
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'rafael'
+            keyPassword 'rafael...7895123'
+            storeFile file('/Users/rafaelalves/Google Drive/PROJETOS E IDÉIAS/Ativos/Profissões/Android/Udacity/temp/Wear/keystore/app_keystore.jks')
+            storePassword 'rafael...7895123'
+        }
+    }
     compileSdkVersion 26
     buildToolsVersion "26.0.1"
-
     defaultConfig {
-        applicationId "com.example.android.sunshine.app"
+        applicationId "com.rafaelalves.android.sunshine.app"
         minSdkVersion 21
         targetSdkVersion 26
         versionCode 1
@@ -21,7 +28,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.google.android.support:wearable:2.0.5'
     compile 'com.google.android.gms:play-services-wearable:11.0.4'
 }
