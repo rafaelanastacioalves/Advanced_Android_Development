@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Watchface</string>
+    <string name="app_name">Watchface for Sunshine</string>
     <string name="my_digital_name">Sunshine prototype</string>
     <string name="digital_background_color">Background color</string>
     <string name="digital_config_name">Digital watch face configuration</string>
