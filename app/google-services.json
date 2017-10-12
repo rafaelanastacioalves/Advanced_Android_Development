@@ -1,7 +1,9 @@
 {
   "project_info": {
     "project_number": "594249544400",
-    "project_id": "udacity-training-project"
+    "firebase_url": "https://udacity-training-project.firebaseio.com",
+    "project_id": "udacity-training-project",
+    "storage_bucket": "udacity-training-project.appspot.com"
   },
   "client": [
     {
@@ -11,7 +13,16 @@
           "package_name": "com.example.android.sunshine.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "594249544400-esgevo1hg1cevv5shb60frl7fqmnjaq7.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "594249544400-hkgljvc0ot1vin1s7jn559k9b8tlu8ud.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyA3xM9ICljcThbVllqlKQ0QuZRXhfLwIn4"
@@ -26,7 +37,42 @@
           "other_platform_oauth_client": []
         },
         "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:594249544400:android:3d5382991c65317e",
+        "android_client_info": {
+          "package_name": "com.rafaelalves.android.sunshine.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "594249544400-esgevo1hg1cevv5shb60frl7fqmnjaq7.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "594249544400-hkgljvc0ot1vin1s7jn559k9b8tlu8ud.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3xM9ICljcThbVllqlKQ0QuZRXhfLwIn4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
           "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
         }
       }
     }
