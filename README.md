@@ -19,9 +19,6 @@ To see the watchface in Android Wear Emulator:
 5. Intall the app;
 
 
-Patches are encouraged, and may be submitted by forking this project and
-submitting a pull request through GitHub. Please see CONTRIBUTING.md for more details.
-
 ## License
 
 Copyright 2015 The Android Open Source Project, Inc.
