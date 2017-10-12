@@ -10,14 +10,10 @@ android {
         targetSdkVersion 25
         compileSdkVersion 26
         buildToolsVersion "26.0.1"
+        versionCode 1
+        versionName "1.0"
 
-        defaultConfig {
-            applicationId "com.rafaelalves.android.sunshine.app"
-            minSdkVersion 14
-            targetSdkVersion 26
-            versionCode 1
-            versionName "1.0"
-        }
+
         buildTypes {
             release {
                 minifyEnabled false
