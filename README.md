@@ -1,4 +1,4 @@
-# Advanced Android Sample App
+# Watchface Sample App for Android Wear
 
 Synchronizes weather information from OpenWeatherMap on Android Phones and Tablets. Used in the Udacity Advanced Android course.
 
